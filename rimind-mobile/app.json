@@ -5,13 +5,13 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/rimind-logo.png",
     "splash": {
+      "image": "./assets/rimind-logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#50a5e8"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.rimind.app"
@@ -19,7 +19,11 @@
     "android": {
       "backgroundColor": "#50a5e8",
       "package": "com.rimind.app",
-      "usesCleartextTraffic": true
+      "usesCleartextTraffic": true,
+      "adaptiveIcon0": {
+        "foregroundImage": "./assets/rimind-logo.png",
+        "backgroundColor": "#50a5e8"
+      }
     },
     "scheme": "rimind",
     "extra": {
