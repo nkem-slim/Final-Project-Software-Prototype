@@ -20,7 +20,7 @@
       "backgroundColor": "#50a5e8",
       "package": "com.rimind.app",
       "usesCleartextTraffic": true,
-      "adaptiveIcon0": {
+      "adaptiveIcon": {
         "foregroundImage": "./assets/rimind-logo.png",
         "backgroundColor": "#50a5e8"
       }
