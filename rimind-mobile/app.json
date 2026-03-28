@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Rimind",
+    "slug": "rimind-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#50a5e8"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rimind.app"
+    },
+    "android": {
+      "backgroundColor": "#50a5e8",
+      "package": "com.rimind.app",
+      "usesCleartextTraffic": true
+    },
+    "scheme": "rimind"
+  }
+}

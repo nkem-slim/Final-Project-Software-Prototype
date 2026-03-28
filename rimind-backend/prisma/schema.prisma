@@ -1,0 +1,112 @@
+// RIMIND — SRS §Appendix B — Class Diagram
+// Primary database: PostgreSQL (AWS RDS in production)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MOTHER
+  HEALTH_WORKER
+  ADMIN
+}
+
+enum ReminderStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum PregnancyStage {
+  PRENATAL
+  POSTNATAL
+}
+
+model User {
+  id                String              @id @default(uuid())
+  name              String
+  phoneNumber       String              @unique
+  password          String?             // Nullable: mothers can access some content unauthenticated
+  role              Role                @default(MOTHER)
+  country           String?
+  regionLevel1      String?             // District/State/County
+  regionLevel2      String?             // Sector/LGA/Subcounty
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  pregnancyRecords  PregnancyRecord[]
+  reminders         Reminder[]
+  consultations     AIConsultation[]
+  exercisePlans     ExercisePlan[]
+}
+
+model PregnancyRecord {
+  id                    String    @id @default(uuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expectedDeliveryDate  DateTime
+  trimester             Int       // 1, 2, or 3
+  healthNotes           String?   // Editable by HEALTH_WORKER only (RBAC enforced in service layer)
+  lastUpdatedBy         String?   // userId of the CHW who last edited
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Reminder {
+  id            String          @id @default(uuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message       String
+  scheduledDate DateTime
+  status        ReminderStatus  @default(PENDING)
+  channel       String          @default("PUSH")  // PUSH | SMS | USSD
+  createdAt     DateTime        @default(now())
+
+  @@index([userId])
+  @@index([scheduledDate])
+}
+
+model AIConsultation {
+  id          String    @id @default(uuid())
+  userId      String?   // Nullable: anonymous queries permitted for mothers
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  question    String
+  response    String
+  disclaimer  String    @default("This guidance is not a medical diagnosis. Please consult a qualified health professional.")
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model ExercisePlan {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stage       PregnancyStage
+  title       String
+  description String
+  duration    Int             // Duration in minutes
+  source      String?         // Evidence-based source reference (safety requirement)
+  createdAt   DateTime        @default(now())
+
+  @@index([stage])
+}
+
+model SyncLog {
+  id          String    @id @default(uuid())
+  userId      String
+  deviceId    String
+  syncedAt    DateTime  @default(now())
+  recordCount Int
+  status      String    // SUCCESS | PARTIAL | FAILED
+
+  @@index([userId])
+  @@index([deviceId])
+}

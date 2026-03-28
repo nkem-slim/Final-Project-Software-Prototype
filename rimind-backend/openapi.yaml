@@ -1,0 +1,678 @@
+openapi: 3.0.3
+info:
+  title: Rimind Backend API
+  version: 1.0.0
+  description: >
+    RIMIND — AI-enabled maternal and child health support system API.
+    All endpoints follow the SRS specification.
+
+servers:
+  - url: http://localhost:4000/api
+    description: Local development
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Role:
+      type: string
+      enum: [MOTHER, HEALTH_WORKER, ADMIN]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        phoneNumber:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+        createdAt:
+          type: string
+          format: date-time
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: string
+
+    PregnancyRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+        expectedDeliveryDate:
+          type: string
+          format: date-time
+        trimester:
+          type: integer
+        healthNotes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    Reminder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+        message:
+          type: string
+        scheduledDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [PENDING, SENT, FAILED]
+        channel:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ExercisePlan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+        stage:
+          type: string
+          enum: [PRENATAL, POSTNATAL]
+        title:
+          type: string
+        description:
+          type: string
+        duration:
+          type: integer
+        source:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    AIAskRequest:
+      type: object
+      properties:
+        question:
+          type: string
+        context:
+          type: string
+      required: [question]
+
+    AIAskResponse:
+      type: object
+      properties:
+        response:
+          type: string
+        disclaimer:
+          type: string
+
+    AIConsultation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        question:
+          type: string
+        response:
+          type: string
+        disclaimer:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    SyncLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+        deviceId:
+          type: string
+        recordCount:
+          type: integer
+        status:
+          type: string
+        syncedAt:
+          type: string
+          format: date-time
+
+paths:
+  /auth/register:
+    post:
+      summary: Register user
+      description: Register a Mother, CHW, or Admin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phoneNumber:
+                  type: string
+                password:
+                  type: string
+                  minLength: 8
+                role:
+                  $ref: '#/components/schemas/Role'
+              required: [name, phoneNumber, password]
+      responses:
+        '201':
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phoneNumber:
+                  type: string
+                password:
+                  type: string
+              required: [phoneNumber, password]
+      responses:
+        '200':
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /auth/me:
+    get:
+      summary: Current user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /pregnancy:
+    post:
+      summary: Create pregnancy record (Mother)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expectedDeliveryDate:
+                  type: string
+                trimester:
+                  type: integer
+              required: [expectedDeliveryDate]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PregnancyRecord'
+
+  /pregnancy/me:
+    get:
+      summary: Get own pregnancy records
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of pregnancy records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PregnancyRecord'
+
+  /pregnancy/{userId}:
+    get:
+      summary: Get pregnancy records for user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PregnancyRecord'
+
+  /pregnancy/{id}:
+    put:
+      summary: Update health notes (CHW)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                healthNotes:
+                  type: string
+      responses:
+        '200':
+          description: Updated record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PregnancyRecord'
+
+  /reminders/generate:
+    post:
+      summary: Generate reminders for pregnancy record
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pregnancyRecordId:
+                  type: string
+              required: [pregnancyRecordId]
+      responses:
+        '201':
+          description: Generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+
+  /reminders/me:
+    get:
+      summary: Get own reminders
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of reminders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reminder'
+
+  /reminders/{userId}:
+    get:
+      summary: Get reminders for user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of reminders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reminder'
+
+  /reminders/{id}/status:
+    patch:
+      summary: Update reminder status
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [PENDING, SENT, FAILED]
+              required: [status]
+      responses:
+        '200':
+          description: Updated reminder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+
+  /ai/ask:
+    post:
+      summary: Ask AI Virtual Doctor
+      description: Public endpoint (mothers may call without auth). Rate-limited 10 req/min/IP.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAskRequest'
+      responses:
+        '200':
+          description: AI guidance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAskResponse'
+
+  /ai/history/me:
+    get:
+      summary: Get own AI consultation history
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of consultations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AIConsultation'
+
+  /exercise/{stage}:
+    get:
+      summary: Get exercise plans by stage
+      parameters:
+        - name: stage
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [PRENATAL, POSTNATAL]
+      responses:
+        '200':
+          description: List of plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExercisePlan'
+
+  /exercise:
+    post:
+      summary: Create exercise plan
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stage:
+                  type: string
+                  enum: [PRENATAL, POSTNATAL]
+                title:
+                  type: string
+                description:
+                  type: string
+                duration:
+                  type: integer
+                source:
+                  type: string
+              required: [stage, title, description, duration]
+      responses:
+        '201':
+          description: Created plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExercisePlan'
+
+  /sms/send:
+    post:
+      summary: Trigger SMS dispatch for reminder
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reminderId:
+                  type: string
+              required: [reminderId]
+      responses:
+        '200':
+          description: Dispatch result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sent:
+                    type: boolean
+
+  /ussd:
+    post:
+      summary: Africa's Talking USSD callback
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                sessionId:
+                  type: string
+                phoneNumber:
+                  type: string
+                text:
+                  type: string
+                serviceCode:
+                  type: string
+      responses:
+        '200':
+          description: USSD response
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /admin/users:
+    get:
+      summary: List all users
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /admin/reports:
+    get:
+      summary: System usage report
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usersByRole:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                  reminderCounts:
+                    type: object
+                    properties:
+                      PENDING:
+                        type: integer
+                      SENT:
+                        type: integer
+                      FAILED:
+                        type: integer
+                  recentSyncLogs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SyncLog'
+
+  /admin/users/{id}:
+    delete:
+      summary: Delete user (ADMIN)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+
+  /chw/patients:
+    get:
+      summary: CHW patient list
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of mothers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /sync:
+    post:
+      summary: Record device sync
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deviceId:
+                  type: string
+                recordCount:
+                  type: integer
+                status:
+                  type: string
+                  enum: [SUCCESS, PARTIAL, FAILED]
+              required: [deviceId]
+      responses:
+        '201':
+          description: Sync log
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncLog'
+
+  /sync/status/{deviceId}:
+    get:
+      summary: Get sync status by device
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sync history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SyncLog'
+

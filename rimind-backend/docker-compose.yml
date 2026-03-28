@@ -1,0 +1,48 @@
+# RIMIND Backend — local development
+# SRS: PostgreSQL primary DB; Docker + docker-compose
+# Run from this directory: cd rimind-backend && docker compose up
+# .env is loaded from this directory (env_file) so API keys reach the container.
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://rimind:rimind_secret@db:5432/rimind
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-in-production-min-16-chars}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-min-16-chars}
+      # AI Virtual Doctor — set ANTHROPIC_API_KEY or OPENAI_API_KEY in .env for real responses
+      AI_PROVIDER: ${AI_PROVIDER:-anthropic}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      AI_MODEL_ANTHROPIC: ${AI_MODEL_ANTHROPIC:-claude-haiku-4-5}
+      AI_MODEL_OPENAI: ${AI_MODEL_OPENAI:-gpt-4o-mini}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: rimind
+      POSTGRES_PASSWORD: rimind_secret
+      POSTGRES_DB: rimind
+    volumes:
+      - rimind_pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rimind"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  rimind_pg_data:
