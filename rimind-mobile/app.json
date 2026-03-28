@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#50a5e8"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.rimind.app"
@@ -37,6 +39,16 @@
     },
     "updates": {
       "url": "https://u.expo.dev/405cd7a8-79f7-423a-91c3-fa5f3b126f62"
-    }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ]
   }
 }

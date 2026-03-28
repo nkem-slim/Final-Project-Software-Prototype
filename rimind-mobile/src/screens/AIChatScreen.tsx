@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import Markdown from "react-native-markdown-display";
@@ -68,7 +70,11 @@ export function AIChatScreen(props: { navigation: any }) {
   };
 
   return (
-    <View style={s.container}>
+    <KeyboardAvoidingView
+      style={s.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+    >
       <DisclaimerBanner />
       <ScrollView style={s.scroll} contentContainerStyle={s.content}>
         {isFetchingHistory && (
@@ -119,7 +125,7 @@ export function AIChatScreen(props: { navigation: any }) {
       <TouchableOpacity onPress={() => Alert.alert("Help", "Guidance only.")}>
         <Text style={s.help}>Help</Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
