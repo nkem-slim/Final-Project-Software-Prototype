@@ -1,12 +1,8 @@
-import { Platform } from "react-native";
+const THEME_COLOR = "#50a5e8";
 
-export const THEME_COLOR = "#50a5e8";
-
-export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ??
-  (Platform.OS === "android"
-    ? "http://rimind.medatta0.tech"
-    : "http://rimind.medatta0.tech");
+// export const API_BASE_URL =
+//   process.env.EXPO_PUBLIC_API_URL ?? "http://rimind.medatta0.tech";
+export const API_BASE_URL = "http://rimind.medatta0.tech";
 
 export const STORAGE_KEYS = {
   AUTH_TOKEN: "@rimind/accessToken",
