@@ -11,6 +11,7 @@ import api from "../services/api";
 import { StatusBanner } from "../components/StatusBanner";
 import { Card } from "../components/Card";
 import { useConnectivity } from "../hooks/useConnectivity";
+import { StatusBar } from "expo-status-bar";
 
 type Report = {
   usersByRole: { MOTHER: number; HEALTH_WORKER: number; ADMIN: number };
@@ -41,6 +42,7 @@ export const AdminReportsScreen: React.FC<{ navigation: any }> = ({
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <StatusBar style="dark" />
       <StatusBanner isOnline={isOnline} />
       <Text style={styles.title}>Admin reports</Text>
       {loading && <ActivityIndicator size="large" color="#50a5e8" />}

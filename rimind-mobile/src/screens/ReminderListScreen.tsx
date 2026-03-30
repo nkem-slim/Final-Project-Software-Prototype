@@ -19,6 +19,7 @@ import { Card } from "../components/Card";
 import { useConnectivity } from "../hooks/useConnectivity";
 import { formatDateTime } from "../utils/dateUtils";
 import api from "../services/api";
+import { StatusBar } from "expo-status-bar";
 
 type AdminUser = {
   id: string;
@@ -45,19 +46,26 @@ export function ReminderListScreen() {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [showComposeModal, setShowComposeModal] = useState(false);
-  const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(null);
-  const [actioningReminderId, setActioningReminderId] = useState<string | null>(null);
-  const [recipientFilter, setRecipientFilter] = useState<RecipientFilter>("ALL");
+  const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(
+    null,
+  );
+  const [actioningReminderId, setActioningReminderId] = useState<string | null>(
+    null,
+  );
+  const [recipientFilter, setRecipientFilter] =
+    useState<RecipientFilter>("ALL");
   const [refreshing, setRefreshing] = useState(false);
 
   const targetUsers = useMemo(
-    () => users.filter((u) => u.role === "HEALTH_WORKER" || u.role === "MOTHER"),
+    () =>
+      users.filter((u) => u.role === "HEALTH_WORKER" || u.role === "MOTHER"),
     [users],
   );
 
   const filteredTargetUsers = useMemo(() => {
     if (recipientFilter === "ALL") return targetUsers;
-    if (recipientFilter === "CHW") return targetUsers.filter((u) => u.role === "HEALTH_WORKER");
+    if (recipientFilter === "CHW")
+      return targetUsers.filter((u) => u.role === "HEALTH_WORKER");
     return targetUsers.filter((u) => u.role === "MOTHER");
   }, [targetUsers, recipientFilter]);
 
@@ -108,7 +116,10 @@ export function ReminderListScreen() {
       setShowComposeModal(false);
       Alert.alert("Success", "Notification sent.");
     } catch (e: any) {
-      Alert.alert("Error", e?.response?.data?.error ?? "Could not send notification.");
+      Alert.alert(
+        "Error",
+        e?.response?.data?.error ?? "Could not send notification.",
+      );
     } finally {
       setSending(false);
     }
@@ -121,7 +132,10 @@ export function ReminderListScreen() {
       await markAsDone(selectedReminder.id);
       setSelectedReminder({ ...selectedReminder, status: "SENT" });
     } catch (e: any) {
-      Alert.alert("Error", e?.response?.data?.error ?? "Could not mark as done.");
+      Alert.alert(
+        "Error",
+        e?.response?.data?.error ?? "Could not mark as done.",
+      );
     } finally {
       setActioningReminderId(null);
     }
@@ -134,7 +148,10 @@ export function ReminderListScreen() {
       await deleteReminder(selectedReminder.id);
       setSelectedReminder(null);
     } catch (e: any) {
-      Alert.alert("Error", e?.response?.data?.error ?? "Could not delete notification.");
+      Alert.alert(
+        "Error",
+        e?.response?.data?.error ?? "Could not delete notification.",
+      );
     } finally {
       setActioningReminderId(null);
     }
@@ -155,17 +172,29 @@ export function ReminderListScreen() {
       style={s.container}
       contentContainerStyle={s.content}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={["#50a5e8"]} />
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          colors={["#50a5e8"]}
+        />
       }
     >
+      <StatusBar style="dark" />
       <StatusBanner isOnline={isOnline} />
-      <Text style={s.title}>{isAdmin ? "Send notifications" : "Notifications"}</Text>
+      <Text style={s.title}>
+        {isAdmin ? "Send notifications" : "Notifications"}
+      </Text>
       {isAdmin && (
         <View style={s.adminActions}>
-          <TouchableOpacity style={s.primaryBtn} onPress={() => setShowComposeModal(true)}>
+          <TouchableOpacity
+            style={s.primaryBtn}
+            onPress={() => setShowComposeModal(true)}
+          >
             <Text style={s.primaryBtnText}>Send notification</Text>
           </TouchableOpacity>
-          <Text style={s.helper}>You can send notifications directly to CHW and Mother users.</Text>
+          <Text style={s.helper}>
+            You can send notifications directly to CHW and Mother users.
+          </Text>
         </View>
       )}
       {loading && <ActivityIndicator size="large" color="#50a5e8" />}
@@ -178,7 +207,11 @@ export function ReminderListScreen() {
             <Text style={s.date}>{formatDateTime(r.scheduledDate)}</Text>
             <Text numberOfLines={2}>{r.message}</Text>
             <Text style={s.status}>
-              {r.status === "SENT" ? "Done" : r.status === "PENDING" ? "Pending" : r.status}
+              {r.status === "SENT"
+                ? "Done"
+                : r.status === "PENDING"
+                  ? "Pending"
+                  : r.status}
             </Text>
           </Card>
         </TouchableOpacity>
@@ -219,7 +252,12 @@ export function ReminderListScreen() {
                     accessibilityLabel={`Filter recipients: ${label}`}
                     accessibilityState={{ selected: isActive }}
                   >
-                    <Text style={[s.filterChipText, isActive && s.filterChipTextActive]}>
+                    <Text
+                      style={[
+                        s.filterChipText,
+                        isActive && s.filterChipTextActive,
+                      ]}
+                    >
                       {label}
                     </Text>
                   </TouchableOpacity>
@@ -236,15 +274,29 @@ export function ReminderListScreen() {
             {filteredTargetUsers.map((u) => (
               <TouchableOpacity
                 key={u.id}
-                style={[s.userOption, selectedUserId === u.id && s.userOptionSelected]}
+                style={[
+                  s.userOption,
+                  selectedUserId === u.id && s.userOptionSelected,
+                ]}
                 onPress={() => setSelectedUserId(u.id)}
                 accessibilityRole="button"
                 accessibilityLabel={`Select ${u.name}, ${u.role === "HEALTH_WORKER" ? "CHW" : u.role === "MOTHER" ? "Mother" : u.role}`}
                 accessibilityState={{ selected: selectedUserId === u.id }}
               >
-                <Text style={selectedUserId === u.id ? s.userOptionSelectedText : undefined}>
+                <Text
+                  style={
+                    selectedUserId === u.id
+                      ? s.userOptionSelectedText
+                      : undefined
+                  }
+                >
                   {u.name} (
-                  {u.role === "HEALTH_WORKER" ? "CHW" : u.role === "MOTHER" ? "MOTHER" : u.role})
+                  {u.role === "HEALTH_WORKER"
+                    ? "CHW"
+                    : u.role === "MOTHER"
+                      ? "MOTHER"
+                      : u.role}
+                  )
                 </Text>
               </TouchableOpacity>
             ))}
@@ -256,7 +308,10 @@ export function ReminderListScreen() {
               onChangeText={setMessage}
             />
             <View style={s.modalActions}>
-              <TouchableOpacity style={s.ghostBtn} onPress={() => setShowComposeModal(false)}>
+              <TouchableOpacity
+                style={s.ghostBtn}
+                onPress={() => setShowComposeModal(false)}
+              >
                 <Text style={s.ghostBtnText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -264,14 +319,20 @@ export function ReminderListScreen() {
                 onPress={handleSendNotification}
                 disabled={sending}
               >
-                <Text style={s.primaryBtnText}>{sending ? "Sending..." : "Send"}</Text>
+                <Text style={s.primaryBtnText}>
+                  {sending ? "Sending..." : "Send"}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
 
-      <Modal visible={Boolean(selectedReminder)} transparent animationType="slide">
+      <Modal
+        visible={Boolean(selectedReminder)}
+        transparent
+        animationType="slide"
+      >
         <View style={s.sheetOverlay}>
           <View style={s.sheet}>
             <View style={s.sheetHeader}>
@@ -281,7 +342,9 @@ export function ReminderListScreen() {
               </TouchableOpacity>
             </View>
             <Text style={s.date}>
-              {selectedReminder ? formatDateTime(selectedReminder.scheduledDate) : ""}
+              {selectedReminder
+                ? formatDateTime(selectedReminder.scheduledDate)
+                : ""}
             </Text>
             <Text style={s.sheetMessage}>{selectedReminder?.message}</Text>
             <Text style={s.status}>
@@ -296,16 +359,24 @@ export function ReminderListScreen() {
               <TouchableOpacity
                 style={s.doneBtn}
                 onPress={handleMarkAsDone}
-                disabled={!selectedReminder || actioningReminderId === selectedReminder.id}
+                disabled={
+                  !selectedReminder ||
+                  actioningReminderId === selectedReminder.id
+                }
               >
                 <Text style={s.doneBtnText}>
-                  {selectedReminder?.status === "SENT" ? "Already done" : "Mark as done"}
+                  {selectedReminder?.status === "SENT"
+                    ? "Already done"
+                    : "Mark as done"}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={s.iconDeleteBtn}
                 onPress={handleDelete}
-                disabled={!selectedReminder || actioningReminderId === selectedReminder.id}
+                disabled={
+                  !selectedReminder ||
+                  actioningReminderId === selectedReminder.id
+                }
               >
                 <Trash2 size={18} color="#b3261e" />
               </TouchableOpacity>
@@ -320,7 +391,12 @@ export function ReminderListScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f0f4f0" },
   content: { padding: 24 },
-  title: { fontSize: 22, fontWeight: "700", color: "#50a5e8", marginBottom: 16 },
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#50a5e8",
+    marginBottom: 16,
+  },
   empty: { color: "#666", marginBottom: 16 },
   date: { fontWeight: "600", marginBottom: 4 },
   status: { fontSize: 13, color: "#666", marginTop: 4 },

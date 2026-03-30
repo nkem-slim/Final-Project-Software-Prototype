@@ -11,6 +11,7 @@ import { useAuthStore } from "../store/authStore";
 import { Button } from "../components/Button";
 import { StatusBanner } from "../components/StatusBanner";
 import { useConnectivity } from "../hooks/useConnectivity";
+import { StatusBar } from "expo-status-bar";
 
 export function EditProfileScreen(props: { navigation: any }) {
   const { navigation } = props;
@@ -44,6 +45,7 @@ export function EditProfileScreen(props: { navigation: any }) {
 
   return (
     <ScrollView style={s.container} contentContainerStyle={s.content}>
+      <StatusBar style="dark" />
       {/* <StatusBanner isOnline={isOnline} /> */}
       <View style={s.form}>
         <Text style={s.label}>Name</Text>

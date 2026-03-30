@@ -1,12 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, View, RefreshControl } from 'react-native';
-import { StatusBanner } from '../components/StatusBanner';
-import { Card } from '../components/Card';
-import { useConnectivity } from '../hooks/useConnectivity';
-import { useAuthStore } from '../store/authStore';
-import { useExerciseStore } from '../store/exerciseStore';
-import Markdown from 'react-native-markdown-display';
-import { RefreshCcw } from 'lucide-react-native';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  View,
+  RefreshControl,
+} from "react-native";
+import { StatusBanner } from "../components/StatusBanner";
+import { Card } from "../components/Card";
+import { useConnectivity } from "../hooks/useConnectivity";
+import { useAuthStore } from "../store/authStore";
+import { useExerciseStore } from "../store/exerciseStore";
+import Markdown from "react-native-markdown-display";
+import { RefreshCcw } from "lucide-react-native";
+import { StatusBar } from "expo-status-bar";
 
 export function HealthInfoScreen({ navigation }: { navigation: any }) {
   const user = useAuthStore((s) => s.user);
@@ -78,6 +88,7 @@ export function HealthInfoScreen({ navigation }: { navigation: any }) {
         />
       }
     >
+      <StatusBar style="dark" />
       <StatusBanner isOnline={isOnline} />
       {showUpdatesBanner && isOnline && (
         <View style={s.updateBanner}>
@@ -104,7 +115,7 @@ export function HealthInfoScreen({ navigation }: { navigation: any }) {
         >
           <RefreshCcw
             size={18}
-            color={isOnline ? '#50a5e8' : '#999'}
+            color={isOnline ? "#50a5e8" : "#999"}
             style={{ opacity: loadingPrenatal ? 0.5 : 1 }}
           />
         </TouchableOpacity>
@@ -126,7 +137,7 @@ export function HealthInfoScreen({ navigation }: { navigation: any }) {
         >
           <RefreshCcw
             size={18}
-            color={isOnline ? '#50a5e8' : '#999'}
+            color={isOnline ? "#50a5e8" : "#999"}
             style={{ opacity: loadingPostnatal ? 0.5 : 1 }}
           />
         </TouchableOpacity>
@@ -137,54 +148,76 @@ export function HealthInfoScreen({ navigation }: { navigation: any }) {
           <Markdown style={markdownStylesFull}>{postnatal}</Markdown>
         </Card>
       )}
-      <TouchableOpacity onPress={() => Alert.alert('Help', 'Ask your health worker for advice.')}><Text style={s.help}>Help</Text></TouchableOpacity>
+      <TouchableOpacity
+        onPress={() =>
+          Alert.alert("Help", "Ask your health worker for advice.")
+        }
+      >
+        <Text style={s.help}>Help</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f4f0' },
+  container: { flex: 1, backgroundColor: "#f0f4f0" },
   content: { paddingHorizontal: 16, paddingTop: 24, paddingBottom: 32 },
   updateBanner: {
-    backgroundColor: '#e6f3ff',
+    backgroundColor: "#e6f3ff",
     borderWidth: 1,
-    borderColor: '#b7dbff',
+    borderColor: "#b7dbff",
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
     marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   updateBannerText: {
-    color: '#1f4d73',
+    color: "#1f4d73",
     fontSize: 13,
     flex: 1,
     marginRight: 8,
   },
   updateBannerDismiss: {
-    color: '#50a5e8',
+    color: "#50a5e8",
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
   },
-  title: { fontSize: 22, fontWeight: '700', color: '#50a5e8', marginBottom: 16 },
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#50a5e8",
+    marginBottom: 16,
+  },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginTop: 16,
     marginBottom: 8,
   },
-  section: { fontSize: 18, fontWeight: '600' },
-  help: { marginTop: 24, alignSelf: 'center', color: '#666' },
+  section: { fontSize: 18, fontWeight: "600" },
+  help: { marginTop: 24, alignSelf: "center", color: "#666" },
 });
 
 const markdownStylesFull = StyleSheet.create({
-  body: { fontSize: 14, color: '#333', lineHeight: 20 },
-  heading1: { fontSize: 18, fontWeight: '700', marginBottom: 4, color: '#2d4150' },
-  heading2: { fontSize: 16, fontWeight: '600', marginTop: 8, marginBottom: 4, color: '#2d4150' },
-  strong: { fontWeight: '700', color: '#2d4150' },
+  body: { fontSize: 14, color: "#333", lineHeight: 20 },
+  heading1: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 4,
+    color: "#2d4150",
+  },
+  heading2: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginTop: 8,
+    marginBottom: 4,
+    color: "#2d4150",
+  },
+  strong: { fontWeight: "700", color: "#2d4150" },
   paragraph: { marginBottom: 4 },
   bullet_list: { marginVertical: 2 },
   list_item: { marginVertical: 2 },

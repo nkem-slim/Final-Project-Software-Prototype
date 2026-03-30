@@ -14,6 +14,7 @@ import api from "../services/api";
 import { StatusBanner } from "../components/StatusBanner";
 import { Card } from "../components/Card";
 import { useConnectivity } from "../hooks/useConnectivity";
+import { StatusBar } from "expo-status-bar";
 
 type AdminUser = {
   id: string;
@@ -86,6 +87,7 @@ export const AdminUsersScreen: React.FC = () => {
 
   return (
     <ScrollView style={s.container} contentContainerStyle={s.content}>
+      <StatusBar style="dark" />
       <StatusBanner isOnline={isOnline} />
       <Text style={s.title}>Users</Text>
       {loading && <ActivityIndicator size="large" color="#50a5e8" />}
@@ -148,4 +150,3 @@ const s = StyleSheet.create({
   callText: { marginLeft: 6, color: "#50a5e8", fontWeight: "600" },
   deleteText: { marginLeft: 6, color: "#b3261e", fontWeight: "600" },
 });
-

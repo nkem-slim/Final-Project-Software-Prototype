@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { Platform } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
@@ -27,15 +26,7 @@ const stackScreenOptions = {
   headerTintColor: "#fff",
   headerTitleStyle: { fontWeight: "600" as const },
   headerBackTitleVisible: false,
-  ...(Platform.OS === "android"
-    ? {
-        statusBarTranslucent: true,
-        statusBarColor: HEADER_BG,
-        navigationBarColor: "#f0f4f0",
-      }
-    : {
-        statusBarStyle: "light" as const,
-      }),
+  statusBarStyle: "light" as const,
 };
 
 export function RootNavigator() {

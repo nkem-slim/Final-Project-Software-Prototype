@@ -20,6 +20,7 @@ import { Button } from "../components/Button";
 import { useConnectivity } from "../hooks/useConnectivity";
 import { formatDate } from "../utils/dateUtils";
 import axios from "axios";
+import { StatusBar } from "expo-status-bar";
 
 const THEME_COLOR = "#50a5e8";
 
@@ -148,6 +149,7 @@ export function PregnancyRecordScreen() {
 
   return (
     <View style={s.container}>
+      <StatusBar style="dark" />
       {/* <StatusBanner isOnline={isOnline} /> */}
       <View style={s.header}>
         {showAddMode && <Text style={s.title}>Pregnancy record</Text>}

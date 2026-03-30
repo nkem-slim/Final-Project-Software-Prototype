@@ -16,6 +16,7 @@ import { StatusBanner } from "../components/StatusBanner";
 import { Card } from "../components/Card";
 import { useConnectivity } from "../hooks/useConnectivity";
 import { formatDateTime } from "../utils/dateUtils";
+import { StatusBar } from "expo-status-bar";
 
 type Patient = {
   id: string;
@@ -39,7 +40,7 @@ export function CHWDashboardScreen(props: { navigation: any }) {
       .get("/chw/patients")
       .then((res) => {
         const list: Patient[] = Array.isArray(res.data?.data ?? res.data)
-          ? res.data?.data ?? res.data
+          ? (res.data?.data ?? res.data)
           : [];
         const filtered = list.filter(
           (p) =>
@@ -65,6 +66,7 @@ export function CHWDashboardScreen(props: { navigation: any }) {
 
   return (
     <ScrollView style={s.container} contentContainerStyle={s.content}>
+      <StatusBar style="dark" />
       <StatusBanner isOnline={isOnline} />
       <Text style={s.title}>CHW Dashboard</Text>
       {loading && <ActivityIndicator size="large" color="#50a5e8" />}

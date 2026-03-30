@@ -24,6 +24,7 @@ import {
   BellRing,
   UserCircle2,
 } from "lucide-react-native";
+import { StatusBar } from "expo-status-bar";
 
 const getDaysToDate = (iso: string): number => {
   const target = new Date(iso);
@@ -148,6 +149,7 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({
         />
       }
     >
+      <StatusBar style="dark" />
       <StatusBanner isOnline={isOnline} queueLength={queueLength} />
       {showUpdatesBanner && isOnline && (
         <View style={styles.updateBanner}>
@@ -214,7 +216,9 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({
           </View>
 
           {!isOnline && (
-            <Text style={styles.offlineHint}>Showing cached data - connect to refresh</Text>
+            <Text style={styles.offlineHint}>
+              Showing cached data - connect to refresh
+            </Text>
           )}
 
           {loadingHome && (
@@ -446,7 +450,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   eddPrompt: { fontSize: 14, color: "#333", marginRight: 8, flex: 1 },
-  offlineHint: { fontSize: 12, color: "#999", fontStyle: "italic", marginBottom: 6 },
+  offlineHint: {
+    fontSize: 12,
+    color: "#999",
+    fontStyle: "italic",
+    marginBottom: 6,
+  },
   routineLoading: { fontSize: 13, color: "#666", marginBottom: 4 },
   tipBox: {
     backgroundColor: "#ffffff",

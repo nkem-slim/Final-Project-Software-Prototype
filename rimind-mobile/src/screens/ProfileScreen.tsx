@@ -13,6 +13,7 @@ import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { SignOutConfirmModal } from "../components/SignOutConfirmModal";
 import { useConnectivity } from "../hooks/useConnectivity";
+import { StatusBar } from "expo-status-bar";
 
 export function ProfileScreen(props: { navigation: any }) {
   const { navigation } = props;
@@ -36,6 +37,7 @@ export function ProfileScreen(props: { navigation: any }) {
 
   return (
     <ScrollView style={s.container} contentContainerStyle={s.content}>
+      <StatusBar style="dark" />
       {/* <StatusBanner isOnline={isOnline} /> */}
       <Text style={s.title}>Profile</Text>
       <TouchableOpacity onPress={() => navigation.navigate("EditProfile")}>
